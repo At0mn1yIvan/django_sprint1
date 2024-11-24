@@ -1,3 +1,4 @@
+from django.http import Http404, HttpResponseNotFound
 from django.shortcuts import render
 
 posts = [
@@ -52,9 +53,12 @@ def index(request):
     )
 
 
-def post_detail(request, id):
+def post_detail(request, post_id):
+    post = next((p for p in posts if p["id"] == post_id), None)
+    if not post:
+        raise Http404(f"Пост с id {post_id} не найден.")
     return render(
-        request, template_name="blog/detail.html", context={"post": posts[id]}
+        request, template_name="blog/detail.html", context={"post": post}
     )
 
 
@@ -64,3 +68,7 @@ def category_posts(request, category_slug):
         template_name="blog/category.html",
         context={"category_slug": category_slug},
     )
+
+
+def page_not_found(request, exception):
+    return HttpResponseNotFound("<h1>Страница не найдена</h1>")
